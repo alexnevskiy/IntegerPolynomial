@@ -147,10 +147,12 @@ public class IntegerPolynomial {
             else map3.put(key, map2.get(key));
         }
         map3.values().removeIf(value -> value.equals(0));
-        for (String key : map3.keySet()) {
-            if (key.equals(map3.keySet().toArray()[0])) answer += map3.get(key) + key;
+        ArrayList keyList = new ArrayList(map3.keySet());
+        for (int i = keyList.size() - 1; i >= 0; i--) {
+            Object key = keyList.get(i);
+            if (key.equals(keyList.get(keyList.size() - 1))) answer += "" + map3.get(key) + key;
             else if (map3.get(key) > 0) answer += "+" + map3.get(key) + key;
-            else answer += map3.get(key) + key;
+            else answer += "" + map3.get(key) + key;
         }
         return answer;
     }
@@ -167,10 +169,12 @@ public class IntegerPolynomial {
             else map3.put(key, -map2.get(key));
         }
         map3.values().removeIf(value -> value.equals(0));
-        for (String key : map3.keySet()) {
-            if (key.equals(map3.keySet().toArray()[0])) answer += map3.get(key) + key;
+        ArrayList keyList = new ArrayList(map3.keySet());
+        for (int i = keyList.size() - 1; i >= 0; i--) {
+            Object key = keyList.get(i);
+            if (key.equals(keyList.get(keyList.size() - 1))) answer += "" + map3.get(key) + key;
             else if (map3.get(key) > 0) answer += "+" + map3.get(key) + key;
-            else answer += map3.get(key) + key;
+            else answer += "" + map3.get(key) + key;
         }
         return answer;
     }
@@ -231,8 +235,10 @@ public class IntegerPolynomial {
                 else map3.put(key1 + key2, map3.get(key1 + key2) + map1.get(key1) * map2.get(key2));
             }
         }
-        for (Integer key : map3.keySet()) {
-            if (key.equals(map3.keySet().toArray()[0])) {
+        ArrayList keyList = new ArrayList(map3.keySet());
+        for (int i = keyList.size() - 1; i >= 0; i--) {
+            Object key = keyList.get(i);
+            if (key.equals(keyList.get(keyList.size() - 1))) {
                 if (key.equals(0)) answer += map3.get(key);
                 else if (key.equals(1)) {
                     if (map3.get(key).equals(1)) answer += "x";
@@ -292,7 +298,7 @@ public class IntegerPolynomial {
         System.out.println(additionOfPolynomials(polynom1, polynom2));
         System.out.println(subtractionOfPolynomials(polynom1, polynom2));
         System.out.println(multiplicationOfPolynomials(polynom1, polynom2));
-
+        System.out.println(mapMaker(polynom1));
 
 
     }
