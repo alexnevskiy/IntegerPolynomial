@@ -136,6 +136,34 @@ public class IntegerPolynomial {
     }
 
 
+    private static Map integerMapMaker(String str) {
+        Map<Integer, Integer> map = new TreeMap<>();
+        String trim = str.replaceAll("\\s+", "").trim();
+        String minus = trim.replaceAll("-", "  -").trim();
+        String plus = minus.replaceAll("\\+", "  +").trim();
+        String[] split = plus.split("\\s{2}");
+        for (int i = 0; i < split.length; i++) {
+            if (split[i].matches("[+-]?\\d+[x]\\^\\d+")) {
+                String[] parse = split[i].split("[x]\\^");
+                map.put(Integer.parseInt(parse[1]), Integer.parseInt(parse[0]));
+            } else if (split[i].matches("[+-]?[x]\\^\\d+")) {
+                String[] parse = split[i].split("[x]\\^");
+                map.put(Integer.parseInt(parse[1]), 1);
+            } else if (split[i].matches("[+-]?\\d+[x]")) {
+                String[] parse = split[i].split("[x]");
+                map.put(1, Integer.parseInt(parse[0]));
+            } else if (split[i].matches("[+]?[x]")) {
+                map.put(1, 1);
+            } else if (split[i].matches("[-]?[x]")) {
+                map.put(1, -1);
+            } else {
+                map.put(0, Integer.parseInt(split[i]));
+            }
+        }
+        return map;
+    }
+
+
     public static String additionOfPolynomials(String str1, String str2) {
         Map<String, Integer> map1 = mapMaker(str1);
         Map<String, Integer> map2 = mapMaker(str2);
@@ -181,54 +209,10 @@ public class IntegerPolynomial {
 
 
     public static String multiplicationOfPolynomials(String str1, String str2) {
-        Map<Integer, Integer> map1 = new TreeMap<>();
-        Map<Integer, Integer> map2 = new TreeMap<>();
+        Map<Integer, Integer> map1 = integerMapMaker(str1);
+        Map<Integer, Integer> map2 = integerMapMaker(str2);
         Map<Integer, Integer> map3 = new TreeMap<>();
         String answer = new String();
-        String trim1 = str1.replaceAll("\\s+", "").trim();
-        String minus1 = trim1.replaceAll("-", "  -").trim();
-        String plus1 = minus1.replaceAll("\\+", "  +").trim();
-        String[] split1 = plus1.split("\\s{2}");
-        for (int i = 0; i < split1.length; i++) {
-            if (split1[i].matches("[+-]?\\d+[x]\\^\\d+")) {
-                String[] parse = split1[i].split("[x]\\^");
-                map1.put(Integer.parseInt(parse[1]), Integer.parseInt(parse[0]));
-            } else if (split1[i].matches("[+-]?[x]\\^\\d+")) {
-                String[] parse = split1[i].split("[x]\\^");
-                map1.put(Integer.parseInt(parse[1]), 1);
-            } else if (split1[i].matches("[+-]?\\d+[x]")) {
-                String[] parse = split1[i].split("[x]");
-                map1.put(1, Integer.parseInt(parse[0]));
-            } else if (split1[i].matches("[+]?[x]")) {
-                map1.put(1, 1);
-            } else if (split1[i].matches("[-]?[x]")) {
-                map1.put(1, -1);
-            } else {
-                map1.put(0, Integer.parseInt(split1[i]));
-            }
-        }
-        String trim2 = str2.replaceAll("\\s+", "").trim();
-        String minus2 = trim2.replaceAll("-", "  -").trim();
-        String plus2 = minus2.replaceAll("\\+", "  +").trim();
-        String[] split2 = plus2.split("\\s{2}");
-        for (int i = 0; i < split2.length; i++) {
-            if (split2[i].matches("[+-]?\\d+[x]\\^\\d+")) {
-                String[] parse = split2[i].split("[x]\\^");
-                map2.put(Integer.parseInt(parse[1]), Integer.parseInt(parse[0]));
-            } else if (split2[i].matches("[+-]?[x]\\^\\d+")) {
-                String[] parse = split2[i].split("[x]\\^");
-                map2.put(Integer.parseInt(parse[1]), 1);
-            } else if (split2[i].matches("[+-]?\\d+[x]")) {
-                String[] parse = split2[i].split("[x]");
-                map2.put(1, Integer.parseInt(parse[0]));
-            } else if (split2[i].matches("[+]?[x]")) {
-                map2.put(1, 1);
-            } else if (split2[i].matches("[-]?[x]")) {
-                map2.put(1, -1);
-            } else {
-                map2.put(0, Integer.parseInt(split2[i]));
-            }
-        }
         for (Integer key1 : map1.keySet()) {
             for (Integer key2 : map2.keySet()) {
                 if (!map3.containsKey(key1 + key2)) map3.put(key1 + key2, map1.get(key1) * map2.get(key2));
@@ -274,6 +258,7 @@ public class IntegerPolynomial {
 
 
     public static String divisionOfPolynomials(String str1, String str2) {
+
         return "";
     }
 
