@@ -165,46 +165,69 @@ public class IntegerPolynomial {
 
 
     public static String additionOfPolynomials(String str1, String str2) {
-        Map<String, Integer> map1 = mapMaker(str1);
-        Map<String, Integer> map2 = mapMaker(str2);
-        Map<String, Integer> map3 = new TreeMap<>();
-        String answer = new String();
+        Map<Integer, Integer> map1 = integerMapMaker(str1);
+        Map<Integer, Integer> map2 = integerMapMaker(str2);
+        Map<Integer, Integer> map3 = new TreeMap<>();
         map3.putAll(map1);
-        for (String key : map2.keySet()) {
+        for (Integer key : map2.keySet()) {
             if (map3.containsKey(key)) map3.put(key, map3.get(key) + map2.get(key));
             else map3.put(key, map2.get(key));
         }
-        map3.values().removeIf(value -> value.equals(0));
-        ArrayList keyList = new ArrayList(map3.keySet());
-        for (int i = keyList.size() - 1; i >= 0; i--) {
-            Object key = keyList.get(i);
-            if (key.equals(keyList.get(keyList.size() - 1))) answer += "" + map3.get(key) + key;
-            else if (map3.get(key) > 0) answer += "+" + map3.get(key) + key;
-            else answer += "" + map3.get(key) + key;
-        }
-        return answer;
+        return mapToString(map3);
     }
 
 
     public static String subtractionOfPolynomials(String str1, String str2) {
-        Map<String, Integer> map1 = mapMaker(str1);
-        Map<String, Integer> map2 = mapMaker(str2);
-        Map<String, Integer> map3 = new TreeMap<>();
-        String answer = new String();
+        Map<Integer, Integer> map1 = integerMapMaker(str1);
+        Map<Integer, Integer> map2 = integerMapMaker(str2);
+        Map<Integer, Integer> map3 = new TreeMap<>();
         map3.putAll(map1);
-        for (String key : map2.keySet()) {
+        for (Integer key : map2.keySet()) {
             if (map3.containsKey(key)) map3.put(key, map3.get(key) - map2.get(key));
             else map3.put(key, -map2.get(key));
         }
-        map3.values().removeIf(value -> value.equals(0));
-        ArrayList keyList = new ArrayList(map3.keySet());
+        return mapToString(map3);
+    }
+
+
+    private static String mapToString(Map<Integer, Integer> map) {
+        String answer = new String();
+        map.values().removeIf(value -> value.equals(0));
+        ArrayList keyList = new ArrayList(map.keySet());
         for (int i = keyList.size() - 1; i >= 0; i--) {
             Object key = keyList.get(i);
-            if (key.equals(keyList.get(keyList.size() - 1))) answer += "" + map3.get(key) + key;
-            else if (map3.get(key) > 0) answer += "+" + map3.get(key) + key;
-            else answer += "" + map3.get(key) + key;
+            if (key.equals(keyList.get(keyList.size() - 1))) {
+                if (key.equals(0)) answer += map.get(key);
+                else if (key.equals(1)) {
+                    if (map.get(key).equals(1)) answer += "x";
+                    else if (map.get(key).equals(-1)) answer += "-x";
+                    else answer += map.get(key) + "x";
+                }
+                else {
+                    if (map.get(key).equals(1)) answer += "x^" + key;
+                    else if (map.get(key).equals(-1)) answer += "-x^" + key;
+                    else answer += map.get(key) + "x^" + key;
+                }
+            } else {
+                if (key.equals(0)) {
+                    if (map.get(key) > 0) answer += "+" + map.get(key);
+                    else answer += map.get(key);
+                }
+                else if (key.equals(1)) {
+                    if (map.get(key).equals(1)) answer += "+x";
+                    else if (map.get(key).equals(-1)) answer += "-x";
+                    else if (map.get(key) > 1) answer += "+" + map.get(key) + "x";
+                    else answer += map.get(key) + "x";
+                }
+                else {
+                    if (map.get(key).equals(1)) answer += "+x^" + key;
+                    else if (map.get(key).equals(-1)) answer += "-x^" + key;
+                    else if (map.get(key) > 1) answer += "+" + map.get(key) + "x^" + key;
+                    else answer += map.get(key) + "x^" + key;
+                }
+            }
         }
-        return answer;
+        if (answer.equals("")) return "0"; else return answer;
     }
 
 
@@ -212,54 +235,79 @@ public class IntegerPolynomial {
         Map<Integer, Integer> map1 = integerMapMaker(str1);
         Map<Integer, Integer> map2 = integerMapMaker(str2);
         Map<Integer, Integer> map3 = new TreeMap<>();
-        String answer = new String();
         for (Integer key1 : map1.keySet()) {
             for (Integer key2 : map2.keySet()) {
                 if (!map3.containsKey(key1 + key2)) map3.put(key1 + key2, map1.get(key1) * map2.get(key2));
                 else map3.put(key1 + key2, map3.get(key1 + key2) + map1.get(key1) * map2.get(key2));
             }
         }
-        ArrayList keyList = new ArrayList(map3.keySet());
-        for (int i = keyList.size() - 1; i >= 0; i--) {
-            Object key = keyList.get(i);
-            if (key.equals(keyList.get(keyList.size() - 1))) {
-                if (key.equals(0)) answer += map3.get(key);
-                else if (key.equals(1)) {
-                    if (map3.get(key).equals(1)) answer += "x";
-                    else if (map3.get(key).equals(-1)) answer += "-x";
-                    else answer += map3.get(key) + "x";
-                }
-                else {
-                    if (map3.get(key).equals(1)) answer += "x^" + key;
-                    else if (map3.get(key).equals(-1)) answer += "-x^" + key;
-                    else answer += map3.get(key) + "x^" + key;
-                }
-            } else {
-                if (key.equals(0)) {
-                    if (map3.get(key) > 0) answer += "+" + map3.get(key);
-                    else answer += map3.get(key);
-                }
-                else if (key.equals(1)) {
-                    if (map3.get(key).equals(1)) answer += "+x";
-                    else if (map3.get(key).equals(-1)) answer += "-x";
-                    else if (map3.get(key) > 1) answer += "+" + map3.get(key) + "x";
-                    else answer += map3.get(key) + "x";
-                }
-                else {
-                    if (map3.get(key).equals(1)) answer += "+x^" + key;
-                    else if (map3.get(key).equals(-1)) answer += "-x^" + key;
-                    else if (map3.get(key) > 1) answer += "+" + map3.get(key) + "x^" + key;
-                    else answer += map3.get(key) + "x^" + key;
-                }
-            }
-        }
-        return answer;
+        return mapToString(map3);
     }
 
 
     public static String divisionOfPolynomials(String str1, String str2) {
+        if (str2.equals("0")) return "На ноль делить нельзя";
+        if (str1.equals("0")) return "0";
+        Map<Integer, Integer> map1 = integerMapMaker(str1);
+        Map<Integer, Integer> map2 = integerMapMaker(str2);
+        Map<Integer, Integer> map3 = new TreeMap<>();
+        Map<Integer, Integer> map4 = new TreeMap<>();
+        String str = str1;
+        int factor;
+        int divider;
+        int maxDivider1 = (int) map1.keySet().toArray()[map1.keySet().size() - 1];
+        int maxDivider2 = (int) map2.keySet().toArray()[map2.keySet().size() - 1];
+        int factor1 = map1.get(maxDivider1);
+        int factor2 = map2.get(maxDivider2);
+        for (int i = maxDivider1; i >= maxDivider2;) {
+            divider = maxDivider1 - maxDivider2;
+            factor = factor1 / factor2;
+            map3.put(divider, factor);
+            for (Integer key : map2.keySet()) {
+                map4.put(key + divider, map2.get(key) * factor);
+            }
+            str = subtractionOfPolynomials(str, mapToString(map4));
+            if (str.equals("")) return mapToString(map3);
+            map1 = integerMapMaker(str);
+            maxDivider1 = (int) map1.keySet().toArray()[map1.keySet().size() - 1];
+            i = maxDivider1;
+            factor1 = map1.get(maxDivider1);
+            map4.clear();
+        }
+        return mapToString(map3);
+    }
 
-        return "";
+
+    public static String remainderOfDivision(String str1, String str2) {
+        if (str2.equals("0")) return "На ноль делить нельзя";
+        if (str1.equals("0")) return "0";
+        Map<Integer, Integer> map1 = integerMapMaker(str1);
+        Map<Integer, Integer> map2 = integerMapMaker(str2);
+        Map<Integer, Integer> map3 = new TreeMap<>();
+        Map<Integer, Integer> map4 = new TreeMap<>();
+        String str = str1;
+        int factor;
+        int divider;
+        int maxDivider1 = (int) map1.keySet().toArray()[map1.keySet().size() - 1];
+        int maxDivider2 = (int) map2.keySet().toArray()[map2.keySet().size() - 1];
+        int factor1 = map1.get(maxDivider1);
+        int factor2 = map2.get(maxDivider2);
+        for (int i = maxDivider1; i >= maxDivider2;) {
+            divider = maxDivider1 - maxDivider2;
+            factor = factor1 / factor2;
+            map3.put(divider, factor);
+            for (Integer key : map2.keySet()) {
+                map4.put(key + divider, map2.get(key) * factor);
+            }
+            str = subtractionOfPolynomials(str, mapToString(map4));
+            if (str.equals("")) return "0";
+            map1 = integerMapMaker(str);
+            maxDivider1 = (int) map1.keySet().toArray()[map1.keySet().size() - 1];
+            i = maxDivider1;
+            factor1 = map1.get(maxDivider1);
+            map4.clear();
+        }
+        return str;
     }
 
 
@@ -284,7 +332,7 @@ public class IntegerPolynomial {
         System.out.println(subtractionOfPolynomials(polynom1, polynom2));
         System.out.println(multiplicationOfPolynomials(polynom1, polynom2));
         System.out.println(mapMaker(polynom1));
-
-
+        System.out.println(divisionOfPolynomials(polynom1, polynom2));
+        System.out.println(remainderOfDivision(polynom1, polynom2));
     }
 }
