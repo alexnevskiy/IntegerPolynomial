@@ -7,37 +7,32 @@ import static org.junit.jupiter.api.Assertions.*;
 class IntegerPolynomialTest {
 
     @Test
-    void foolCheck() {
+    void plus() {
+        assertEquals(new IntegerPolynomial("2x^4-6x^2+3x-2"), new IntegerPolynomial("x^4+1").plus(new IntegerPolynomial("x^4-6x^2+3x-3")));
+        assertEquals(new IntegerPolynomial("1"), new IntegerPolynomial("0").plus(new IntegerPolynomial("1")));
     }
 
     @Test
-    void valueCalculation() {
-        assertEquals(2, valueCalculation("x", "2"));
+    void equals() {
     }
 
     @Test
-    void polynomEquals() {
-        IntegerPolynomial polynomial = new IntegerPolynomial();
-        assertEquals("Полиномы равны", IntegerPolynomial.polynomEquals("x^2"));
+    void minus() {
     }
 
     @Test
-    void additionOfPolynomials() {
+    void value() {
     }
 
     @Test
-    void subtractionOfPolynomials() {
+    void multiplication() {
     }
 
     @Test
-    void multiplicationOfPolynomials() {
+    void division() {
     }
 
     @Test
-    void divisionOfPolynomials() {
-    }
-
-    @Test
-    void remainderOfDivision() {
+    void remainder() {
     }
 }

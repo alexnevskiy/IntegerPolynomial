@@ -3,20 +3,21 @@ package ru.alexnevskiy;
 import java.util.*;
 
 public final class IntegerPolynomial {
+
     private final List<Integer> factors;
 
     // [1, 2, 3, 4, 5, 6, 7] == 7x^6 + 6x^5 + 5x^4 + .. + 1
     public IntegerPolynomial(List<Integer> input) {
-        List<Integer> bfgb = new ArrayList<>(input);
-        factors = bfgb;
+        List<Integer> list = new ArrayList<>(input);
+        factors = list;
     }
 
     public IntegerPolynomial(String input) {
-        List<Integer> bfgb = new ArrayList<>();
+        List<Integer> list = toList(input);
 
         // Заполнение bfgb.
 
-        factors = bfgb;
+        factors = list;
     }
 
     // IntegerPolynomial obj1 = new IntegerPolynomial("...");
@@ -24,19 +25,79 @@ public final class IntegerPolynomial {
     // IntegerPolynomial obj3 = obj1.plus(obj2);
     public IntegerPolynomial plus(IntegerPolynomial other) {
         // ...
+        Integer max;
+        if (this.factors.size() > other.factors.size()) max = factors.size();
+        else max = other.factors.size();
+        List<Integer> answer = new ArrayList<>();
+         for (int i = max - 1; i >= 0; i--) {
+            answer.add(factors.get(i) + other.factors.get(i));
+         }
+        return new IntegerPolynomial(answer);
+    }
 
-        List<Integer> boo = new ArrayList<>();
-
-        // Заполнение boo.
-        // for (int i = 0; i < dfbfsbfsb; i++) {
-        //     boo.add(factors.get(i) + other.factors.get(i)));
-
-        return new IntegerPolynomial(boo);
+    private List<Integer> toList(String str) {
+        List<Integer> list = new ArrayList<>();
+        String trim = str.replaceAll("\\s+", "").trim();
+        String minus = trim.replaceAll("-", "  -").trim();
+        String plus = minus.replaceAll("\\+", "  +").trim();
+        String[] split = plus.split("\\s{2}");
+        Integer max = -1;
+        for (int i = 0; i < split.length; i++) {
+            if (split[i].matches("[+-]?\\d*[x]\\^\\d+")) {
+                String[] parse = split[i].split("[x]\\^");
+                if (Integer.parseInt(parse[1]) > max) max = Integer.parseInt(parse[1]);
+            } else if (split[i].matches("[+-]?\\d*[x]")){
+                String[] parse = split[i].split("[x]");
+                if (1 > max) max = Integer.parseInt(parse[1]);
+            } else {
+                if (0 > max) max = 0;
+            }
+        }
+        for (int i = 0; i <= max; i++) {
+            for (int j = 0; j < split.length; j++) {
+                if (split[j].matches("[+-]?\\d+[x]\\^\\d+")) {
+                    String[] parse = split[j].split("[x]\\^");
+                    if (Integer.parseInt(parse[1]) == i) {
+                        list.add(Integer.parseInt(parse[0]));
+                        break;
+                    }
+                } else if (split[j].matches("[+-]?[x]\\^\\d+")) {
+                    String[] parse = split[j].split("[x]\\^");
+                    if (Integer.parseInt(parse[1]) == i) {
+                        list.add(1);
+                        break;
+                    }
+                } else if (split[j].matches("[+-]?\\d+[x]")) {
+                    String[] parse = split[j].split("[x]");
+                    if (1 == i) {
+                        list.add(Integer.parseInt(parse[0]));
+                        break;
+                    }
+                } else if (split[j].matches("[+]?[x]")) {
+                    if (1 == i) {
+                        list.add(1);
+                        break;
+                    }
+                } else if (split[j].matches("[-]?[x]")) {
+                    if (1 == i) {
+                        list.add(-1);
+                        break;
+                    }
+                } else {
+                    if (0 == i) {
+                        list.add(Integer.parseInt(split[j]));
+                        break;
+                    }
+                }
+                if (j == split.length - 1) list.add(0);
+            }
+        }
+        return list;
     }
 
     @Override
     public boolean equals(Object other) {
-
+        return true;
     }
 
     @Override
@@ -46,7 +107,67 @@ public final class IntegerPolynomial {
 
     @Override
     public String toString() {
-        // ...
+        String answer = "";
+        for (int i = factors.size() - 1; i >= 0; i--) {
+            if (i == factors.size() - 1) {
+                if (i > 1) {
+                    if (factors.get(i) == 1) answer += "x^" + i;
+                    else if (factors.get(i) == -1) answer += "-x^" + i;
+                    else if (factors.get(i) != 0) answer += factors.get(i) + "x^" + i;
+                    else continue;
+                }
+                if (i == 1) {
+                    if (factors.get(i) == 1) answer += "x";
+                    else if (factors.get(i) == -1) answer += "-x";
+                    else if (factors.get(i) != 0) answer += factors.get(i) + "x";
+                    else continue;
+                }
+                if (i == 0) {
+                    if (factors.get(i) != 0) answer += factors.get(i);
+                }
+            } else {
+                if (i > 1) {
+                    if (factors.get(i) == 1) answer += "+x^" + i;
+                    else if (factors.get(i) == -1) answer += "-x^" + i;
+                    else if (factors.get(i) > 1) answer += "+" + factors.get(i) + "x^" + i;
+                    else if (factors.get(i) < -1) answer += factors.get(i) + "x^" + i;
+                    else continue;
+                }
+                if (i == 1) {
+                    if (factors.get(i) == 1) answer += "+x";
+                    else if (factors.get(i) == -1) answer += "-x";
+                    else if (factors.get(i) > 1) answer += "+" + factors.get(i) + "x";
+                    else if (factors.get(i) < -1) answer += factors.get(i) + "x";
+                    else continue;
+                }
+                if (i == 0) {
+                    if (factors.get(i) >= 1) answer += "+" + factors.get(i);
+                    if (factors.get(i) <= -1) answer += factors.get(i);
+                }
+            }
+
+        }
+        return answer;
+    }
+
+    public IntegerPolynomial minus(IntegerPolynomial other) {
+        return  new IntegerPolynomial(factors);
+    }
+
+    public IntegerPolynomial value(IntegerPolynomial other) {
+        return  new IntegerPolynomial(factors);
+    }
+
+    public IntegerPolynomial multiplication(IntegerPolynomial other) {
+        return  new IntegerPolynomial(factors);
+    }
+
+    public IntegerPolynomial division(IntegerPolynomial other) {
+        return  new IntegerPolynomial(factors);
+    }
+
+    public IntegerPolynomial remainder(IntegerPolynomial other) {
+        return  new IntegerPolynomial(factors);
     }
 
     public static String foolCheck(String str) {
@@ -183,6 +304,7 @@ public final class IntegerPolynomial {
 
     private static Map integerMapMaker(String str) {
         Map<Integer, Integer> map = new TreeMap<>();
+        List<Integer> list = new ArrayList<>();
         String trim = str.replaceAll("\\s+", "").trim();
         String minus = trim.replaceAll("-", "  -").trim();
         String plus = minus.replaceAll("\\+", "  +").trim();
@@ -357,30 +479,9 @@ public final class IntegerPolynomial {
 
 
     public static void main(String[] args) {
-        Scanner input1 = new Scanner(System.in);
-        System.out.println("Введите первый полином");
-        String polynom1 = input1.nextLine();
-        System.out.println(polynom1);
-        Scanner input2 = new Scanner(System.in);
-        System.out.println("Введите второй полином");
-        String polynom2 = input2.nextLine();
-        System.out.println(polynom2);
-        Scanner input3 = new Scanner(System.in);
-        System.out.println("Введите x");
-        String x = input3.nextLine();
-        System.out.println(x);
-        System.out.println(foolCheck(polynom1));
-        System.out.println(foolCheck(polynom2));
-        System.out.println(valueCalculation(polynom1, x));
-        System.out.println(polynomEquals(polynom1, polynom2));
-        System.out.println(additionOfPolynomials(polynom1, polynom2));
-        System.out.println(subtractionOfPolynomials(polynom1, polynom2));
-        System.out.println(multiplicationOfPolynomials(polynom1, polynom2));
-        System.out.println(mapMaker(polynom1));
-        System.out.println(divisionOfPolynomials(polynom1, polynom2));
-        System.out.println(remainderOfDivision(polynom1, polynom2));
-
-        IntegerPolynomial blah = new IntegerPolynomial(new ArrayList<>());
-        System.out.println(blah.toString());
+        IntegerPolynomial list = new IntegerPolynomial(new ArrayList<>());
+        IntegerPolynomial str1 = new IntegerPolynomial("x^4+1");
+        IntegerPolynomial str2 = new IntegerPolynomial("x^4-6x^2+3x-3");
+        System.out.println(str1.plus(str2).toString());
     }
 }
