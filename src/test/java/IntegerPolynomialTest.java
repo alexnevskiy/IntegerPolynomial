@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class IntegerPolynomialTest {
 
     @Test
-    void polynomEquals() {
+    public void polynomEquals() {
 
     }
 }

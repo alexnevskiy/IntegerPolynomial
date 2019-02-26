@@ -2,8 +2,53 @@ package ru.alexnevskiy;
 
 import java.util.*;
 
+public final class IntegerPolynomial {
+    private final List<Integer> factors;
 
-public class IntegerPolynomial {
+    // [1, 2, 3, 4, 5, 6, 7] == 7x^6 + 6x^5 + 5x^4 + .. + 1
+    public IntegerPolynomial(List<Integer> input) {
+        List<Integer> bfgb = new ArrayList<>(input);
+        factors = bfgb;
+    }
+
+    public IntegerPolynomial(String input) {
+        List<Integer> bfgb = new ArrayList<>();
+
+        // Заполнение bfgb.
+
+        factors = bfgb;
+    }
+
+    // IntegerPolynomial obj1 = new IntegerPolynomial("...");
+    // IntegerPolynomial obj2 = new IntegerPolynomial("...");
+    // IntegerPolynomial obj3 = obj1.plus(obj2);
+    public IntegerPolynomial plus(IntegerPolynomial other) {
+        // ...
+
+        List<Integer> boo = new ArrayList<>();
+
+        // Заполнение boo.
+        // for (int i = 0; i < dfbfsbfsb; i++) {
+        //     boo.add(factors.get(i) + other.factors.get(i)));
+
+        return new IntegerPolynomial(boo);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(factors);
+    }
+
+    @Override
+    public String toString() {
+        // ...
+    }
+
     public static String foolCheck(String str) {
         if (str.matches("(\\+?-?\\s*\\d*[x]*\\^*\\d*)*")) return "Полином " + str + " удовлетворяет условиям ввода";
         else return "Некорректный ввод. Введите, пожалуйста, заново полином " + str;
@@ -334,5 +379,8 @@ public class IntegerPolynomial {
         System.out.println(mapMaker(polynom1));
         System.out.println(divisionOfPolynomials(polynom1, polynom2));
         System.out.println(remainderOfDivision(polynom1, polynom2));
+
+        IntegerPolynomial blah = new IntegerPolynomial(new ArrayList<>());
+        System.out.println(blah.toString());
     }
 }
