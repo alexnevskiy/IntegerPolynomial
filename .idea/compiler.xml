@@ -9,8 +9,5 @@
         <module name="IntegerPolynomial" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="IntegerPolynomial" target="8" />
-    </bytecodeTargetLevel>
   </component>
 </project>
