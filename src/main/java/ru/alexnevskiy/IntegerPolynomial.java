@@ -14,9 +14,6 @@ public final class IntegerPolynomial {
 
     public IntegerPolynomial(String input) {
         List<Integer> list = toList(input);
-
-        // Заполнение bfgb.
-
         factors = list;
     }
 
@@ -24,15 +21,28 @@ public final class IntegerPolynomial {
     // IntegerPolynomial obj2 = new IntegerPolynomial("...");
     // IntegerPolynomial obj3 = obj1.plus(obj2);
     public IntegerPolynomial plus(IntegerPolynomial other) {
-        // ...
-        Integer max;
-        if (this.factors.size() > other.factors.size()) max = factors.size();
-        else max = other.factors.size();
+        List<Integer> minList;
+        List<Integer> maxList;
+        if (factors.size() <= other.factors.size()) {
+            minList = factors;
+            maxList = other.factors;
+        }
+        else {
+            minList = other.factors;
+            maxList = factors;
+        }
         List<Integer> answer = new ArrayList<>();
-         for (int i = max - 1; i >= 0; i--) {
-            answer.add(factors.get(i) + other.factors.get(i));
-         }
-        return new IntegerPolynomial(answer);
+        int i = 0;
+        while (i < minList.size()) {
+            answer.add(minList.get(i) + maxList.get(i));
+            i++;
+        }
+        while (i < maxList.size()) {
+            answer.add(maxList.get(i));
+            i++;
+        }
+        if (answer.isEmpty()) return new IntegerPolynomial("0");
+        else return new IntegerPolynomial(answer);
     }
 
     private List<Integer> toList(String str) {
@@ -61,10 +71,16 @@ public final class IntegerPolynomial {
                         list.add(Integer.parseInt(parse[0]));
                         break;
                     }
-                } else if (split[j].matches("[+-]?[x]\\^\\d+")) {
+                } else if (split[j].matches("[+]?[x]\\^\\d+")) {
                     String[] parse = split[j].split("[x]\\^");
                     if (Integer.parseInt(parse[1]) == i) {
                         list.add(1);
+                        break;
+                    }
+                } else if (split[j].matches("[-]?[x]\\^\\d+")) {
+                    String[] parse = split[j].split("[x]\\^");
+                    if (Integer.parseInt(parse[1]) == i) {
+                        list.add(-1);
                         break;
                     }
                 } else if (split[j].matches("[+-]?\\d+[x]")) {
@@ -97,7 +113,12 @@ public final class IntegerPolynomial {
 
     @Override
     public boolean equals(Object other) {
-        return true;
+        if (this == other) return true;
+        if (other instanceof IntegerPolynomial) {
+            IntegerPolynomial newOther = (IntegerPolynomial) other;
+            return factors.equals(newOther.factors);
+        }
+        return false;
     }
 
     @Override
@@ -479,9 +500,8 @@ public final class IntegerPolynomial {
 
 
     public static void main(String[] args) {
-        IntegerPolynomial list = new IntegerPolynomial(new ArrayList<>());
-        IntegerPolynomial str1 = new IntegerPolynomial("x^4+1");
-        IntegerPolynomial str2 = new IntegerPolynomial("x^4-6x^2+3x-3");
-        System.out.println(str1.plus(str2).toString());
+        IntegerPolynomial str3 = new IntegerPolynomial("x^2-6");
+        IntegerPolynomial str4 = new IntegerPolynomial("-x^2+6");
+        System.out.println(str3.plus(str4).toString());
     }
 }
