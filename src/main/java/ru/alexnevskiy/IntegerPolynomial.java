@@ -190,11 +190,61 @@ public final class IntegerPolynomial {
     }
 
     public IntegerPolynomial multiplication(IntegerPolynomial other) {
-        return  new IntegerPolynomial(factors);
+        int max = factors.size() - 1 + other.factors.size() - 1;
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i <= max; i++) {
+            list.add(0);
+        }
+        for (int i = 0; i < factors.size(); i++) {
+            for (int j = 0; j < other.factors.size(); j++) {
+                list.set(i + j, list.get(i + j) + factors.get(i) * other.factors.get(j));
+            }
+        }
+        IntegerPolynomial ans = new IntegerPolynomial(list);
+        IntegerPolynomial zero = new IntegerPolynomial("0");
+        if (ans.toString().equals(zero.toString())) return zero;
+        else return ans;
     }
 
     public IntegerPolynomial division(IntegerPolynomial other) {
-        return  new IntegerPolynomial(factors);
+        if (other.factors.equals(new IntegerPolynomial("0"))) throw new NumberFormatException("На ноль делить нельзя");
+        if (factors.size() < other.factors.size()) return new IntegerPolynomial("0");
+        int max = factors.size() - 1 - (other.factors.size() - 1);
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i <= max; i++) {
+            list.add(0);
+        }
+        int factor;
+        int divider;
+        int maxDivider1 = factors.size() - 1;
+        int maxDivider2 = other.factors.size() - 1;
+        int factor1 = factors.get(maxDivider1);
+        int factor2 = other.factors.get(maxDivider2);
+        IntegerPolynomial obj = this;
+        for (int i = maxDivider1; i >= maxDivider2;) {
+            divider = maxDivider1 - maxDivider2;
+            factor = factor1 / factor2;
+            list.set(divider, factor);
+            List<Integer> var = new ArrayList<>();
+            for (int j = divider; j >= 0; j--) {
+                if (j == 0) var.add(factor);
+                else var.add(0);
+            }
+            IntegerPolynomial remainder = obj.minus(new IntegerPolynomial(var).multiplication(other));
+            if (remainder.toString() == "0") return new IntegerPolynomial(list);
+            if (remainder.factors.get(remainder.factors.size() - 1) == 0) remainder.factors.remove(remainder.factors.size() - 1);
+            obj = remainder;
+            maxDivider1 = obj.factors.size() - 1;
+            if (maxDivider1 == obj.factors.size() - 1) {
+                List<Integer> newObj = toList(obj.toString());
+                newObj.remove(maxDivider1);
+                obj = new IntegerPolynomial(newObj);
+                maxDivider1 = obj.factors.size() - 1;
+            }
+            i = maxDivider1;
+            factor1 = obj.factors.get(obj.factors.size() - 1);
+        }
+        return  new IntegerPolynomial(list);
     }
 
     public IntegerPolynomial remainder(IntegerPolynomial other) {
@@ -510,11 +560,13 @@ public final class IntegerPolynomial {
 
 
     public static void main(String[] args) {
-        IntegerPolynomial str3 = new IntegerPolynomial("x^2-6");
-        IntegerPolynomial str4 = new IntegerPolynomial("-x^2+6");
+        IntegerPolynomial str3 = new IntegerPolynomial("9x^4-11x^3+x^2-3");
+        IntegerPolynomial str4 = new IntegerPolynomial("2x-1");
         System.out.println(str3.plus(str4).toString());
         System.out.println(new IntegerPolynomial("0").equals(new IntegerPolynomial("0")));
         System.out.println(str3.minus(str4));
         System.out.println(str3.value(2));
+        System.out.println(str3.multiplication(str4));
+        System.out.println(str3.division(str4));
     }
 }
