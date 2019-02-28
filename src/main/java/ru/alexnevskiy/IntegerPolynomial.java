@@ -24,8 +24,7 @@ public final class IntegerPolynomial {
         if (factors.size() <= other.factors.size()) {
             minList = factors;
             maxList = other.factors;
-        }
-        else {
+        } else {
             minList = other.factors;
             maxList = factors;
         }
@@ -39,10 +38,12 @@ public final class IntegerPolynomial {
             answer.add(maxList.get(i));
             i++;
         }
-        IntegerPolynomial ans = new IntegerPolynomial(answer);
-        IntegerPolynomial zero = new IntegerPolynomial("0");
-        if (ans.toString().equals(zero.toString())) return zero;
-        else return ans;
+        if (answer.get(answer.size() - 1) == 0) {
+            while (answer.get(answer.size() - 1) == 0 && answer.size() != 1) {
+                answer.remove(answer.size() - 1);
+            }
+        }
+        return new IntegerPolynomial(answer);
     }
 
     private List<Integer> toList(String str) {
@@ -56,7 +57,7 @@ public final class IntegerPolynomial {
             if (split[i].matches("[+-]?\\d*[x]\\^\\d+")) {
                 String[] parse = split[i].split("[x]\\^");
                 if (Integer.parseInt(parse[1]) > max) max = Integer.parseInt(parse[1]);
-            } else if (split[i].matches("[+-]?\\d*[x]")){
+            } else if (split[i].matches("[+-]?\\d*[x]")) {
                 if (1 > max) max = 1;
             } else {
                 if (0 > max) max = 0;
@@ -121,11 +122,6 @@ public final class IntegerPolynomial {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(factors);
-    }
-
-    @Override
     public String toString() {
         String answer = "";
         for (int i = factors.size() - 1; i >= 0; i--) {
@@ -171,17 +167,16 @@ public final class IntegerPolynomial {
     }
 
     public IntegerPolynomial minus(IntegerPolynomial other) {
-        List<Integer> list1 = factors;
-        List<Integer> list2 = other.factors;
-        List<Integer> list3 = new ArrayList<>();
-        for (int i = 0; i < list2.size(); i++) {
-            list3.add(-list2.get(i));
+        List<Integer> list1 = other.factors;
+        List<Integer> list2 = new ArrayList<>();
+        for (int i = 0; i < list1.size(); i++) {
+            list2.add(-list1.get(i));
         }
-        return  new IntegerPolynomial(list1).plus(new IntegerPolynomial(list3));
+        return new IntegerPolynomial(factors).plus(new IntegerPolynomial(list2));
     }
 
     public int value(int x) {
-        Integer answer = 0;
+        int answer = 0;
         for (int i = 0; i < factors.size(); i++) {
             int factor = (int) Math.pow(x, i);
             answer += factors.get(i) * factor;
@@ -207,7 +202,7 @@ public final class IntegerPolynomial {
     }
 
     public IntegerPolynomial division(IntegerPolynomial other) {
-        if (other.factors.equals(new IntegerPolynomial("0"))) throw new NumberFormatException("На ноль делить нельзя");
+        if (other.equals(new IntegerPolynomial("0"))) throw new NumberFormatException("На ноль делить нельзя");
         if (factors.size() < other.factors.size()) return new IntegerPolynomial("0");
         int max = factors.size() - 1 - (other.factors.size() - 1);
         List<Integer> list = new ArrayList<>();
@@ -220,353 +215,28 @@ public final class IntegerPolynomial {
         int maxDivider2 = other.factors.size() - 1;
         int factor1 = factors.get(maxDivider1);
         int factor2 = other.factors.get(maxDivider2);
-        IntegerPolynomial obj = this;
-        for (int i = maxDivider1; i >= maxDivider2;) {
-            divider = maxDivider1 - maxDivider2;
-            factor = factor1 / factor2;
-            list.set(divider, factor);
+        IntegerPolynomial obj1 = this;
+        while (obj1.factors.size() >= other.factors.size()) {
+            divider = maxDivider1 - maxDivider2;  //Степень
+            factor = factor1 / factor2;  //Множитель
+            list.set(divider, factor);  //Добавление в лист степени и множителя разности
             List<Integer> var = new ArrayList<>();
-            for (int j = divider; j >= 0; j--) {
+            for (int j = divider; j >= 0; j--) {  //Создание и заполнение листа для члена частного
                 if (j == 0) var.add(factor);
                 else var.add(0);
             }
-            IntegerPolynomial remainder = obj.minus(new IntegerPolynomial(var).multiplication(other));
-            if (remainder.toString() == "0") return new IntegerPolynomial(list);
-            if (remainder.factors.get(remainder.factors.size() - 1) == 0) remainder.factors.remove(remainder.factors.size() - 1);
-            obj = remainder;
-            maxDivider1 = obj.factors.size() - 1;
-            if (maxDivider1 == obj.factors.size() - 1) {
-                List<Integer> newObj = toList(obj.toString());
-                newObj.remove(maxDivider1);
-                obj = new IntegerPolynomial(newObj);
-                maxDivider1 = obj.factors.size() - 1;
-            }
-            i = maxDivider1;
-            factor1 = obj.factors.get(obj.factors.size() - 1);
+            IntegerPolynomial remainder = obj1.minus(new IntegerPolynomial(var).multiplication(other));  //Остаток от вычитания
+            if (remainder.factors.size() == obj1.factors.size())  //  Удаление максимального одночлена, если его степень
+                remainder.factors.remove(remainder.factors.size() - 1);  //  совпадает со степенью уменьшаемого
+            obj1 = remainder;
+            maxDivider1 = obj1.factors.size() - 1;  //  Переопределение степени уменьшаемого
+            factor1 = obj1.factors.get(obj1.factors.size() - 1);  //  Переопределение множителя уменьшаемого
+            if (remainder.toString().equals("0")) break;  //  Если остаток равен 0, то цикл заканчивается
         }
-        return  new IntegerPolynomial(list);
+        return new IntegerPolynomial(list);
     }
 
     public IntegerPolynomial remainder(IntegerPolynomial other) {
-        return  new IntegerPolynomial(factors);
-    }
-
-    public static String foolCheck(String str) {
-        if (str.matches("(\\+?-?\\s*\\d*[x]*\\^*\\d*)*")) return "Полином " + str + " удовлетворяет условиям ввода";
-        else return "Некорректный ввод. Введите, пожалуйста, заново полином " + str;
-    }
-
-
-    public static int valueCalculation(String str, String stringX) {
-        String trim = str.replaceAll("\\s+", "").trim();
-        String plus = trim.replaceAll("\\+", " + ").trim();
-        String minus = plus.replaceAll("-", " - ").trim();
-        String[] split = minus.split("\\s");
-        int X = Integer.parseInt(stringX);
-        if (split[0].equals("-")) {
-            for (int i = 1; i < split.length; i += 2) {
-                if (split[i].matches("\\d+[x]\\^\\d+")) {
-                    String[] parse = split[i].split("[x]\\^");
-                    int var = (int) Math.pow(X, Integer.parseInt(parse[1])) * Integer.parseInt(parse[0]);
-                    split[i] = Integer.toString(var);
-                } else if (split[i].matches("[x]\\^\\d+")) {
-                    String replaceX = split[i].replaceAll("[x]\\^", "");
-                    int var = (int) Math.pow(X, Integer.parseInt(replaceX));
-                    split[i] = Integer.toString(var);
-                } else if (split[i].matches("\\d+[x]")) {
-                    String replaceX = split[i].replaceAll("[x]", "");
-                    int var = X * Integer.parseInt(replaceX);
-                    split[i] = Integer.toString(var);
-                } else if (split[i].matches("[x]")) {
-                    split[i] = Integer.toString(X);
-                } else {
-                    split[i] = split[i];
-                }
-            }
-        } else {
-            for (int i = 0; i < split.length; i += 2) {
-                if (split[i].matches("\\d+[x]\\^\\d+")) {
-                    String[] parse = split[i].split("[x]\\^");
-                    int var = (int) Math.pow(X, Integer.parseInt(parse[1])) * Integer.parseInt(parse[0]);
-                    split[i] = Integer.toString(var);
-                } else if (split[i].matches("[x]\\^\\d+")) {
-                    String replaceX = split[i].replaceAll("[x]\\^", "");
-                    int var = (int) Math.pow(X, Integer.parseInt(replaceX));
-                    split[i] = Integer.toString(var);
-                } else if (split[i].matches("\\d+[x]")) {
-                    String replaceX = split[i].replaceAll("[x]", "");
-                    int var = X * Integer.parseInt(replaceX);
-                    split[i] = Integer.toString(var);
-                } else if (split[i].matches("[x]")) {
-                    split[i] = Integer.toString(X);
-                } else {
-                    split[i] = split[i];
-                }
-            }
-        }
-        String string = "";
-        for (int i = 0; i < split.length; i++) {
-            string += split[i];
-        }
-        return calculation(string);
-    }
-
-
-    private static int calculation(String str) {
-        String plus = str.replaceAll("\\+", " + ").trim();
-        String minus = plus.replaceAll("-", " - ").trim();
-        String[] split = minus.split("\\s");
-        int calculation = 0;
-        if (split[0].equals("-")) {
-            calculation -= Integer.parseInt(split[1]);
-            if (split.length == 1) return calculation;
-            for (int i = 3; i < split.length; i += 2) {
-                if (split[i - 1].equals("+")) calculation += Integer.parseInt(split[i]);
-                else calculation -= Integer.parseInt(split[i]);
-            }
-        } else {
-            calculation = Integer.parseInt(split[0]);
-            if (split.length == 1) return calculation;
-            for (int i = 2; i < split.length; i += 2) {
-                if (split[i - 1].equals("+")) calculation += Integer.parseInt(split[i]);
-                else calculation -= Integer.parseInt(split[i]);
-            }
-        }
-        return calculation;
-    }
-
-
-    public static String polynomEquals(String str1, String str2) {
-        String trim1 = str1.replaceAll("\\s+", "").trim();
-        String minus1 = trim1.replaceAll("-", "  -").trim();
-        String plus1 = minus1.replaceAll("\\+", "  ");
-        String[] split1 = plus1.split("\\s{2}");
-        String trim2 = str2.replaceAll("\\s+", "").trim();
-        String minus2 = trim2.replaceAll("-", "  -").trim();
-        String plus2 = minus2.replaceAll("\\+", "  ");
-        String[] split2 = plus2.split("\\s{2}");
-        if (split1.length != split2.length) return "Полиномы не равны";
-        else {
-            Arrays.sort(split1);
-            Arrays.sort(split2);
-        }
-        if (Arrays.equals(split1, split2)) return "Полиномы равны";
-        else return "Полиномы не равны";
-    }
-
-
-    private static Map mapMaker(String str) {
-        Map<String, Integer> map = new TreeMap<>();
-        String trim = str.replaceAll("\\s+", "").trim();
-        String minus = trim.replaceAll("-", "  -").trim();
-        String plus = minus.replaceAll("\\+", "  +").trim();
-        String[] split = plus.split("\\s{2}");
-        for (int i = 0; i < split.length; i++) {
-            if (split[i].matches("[+-]?\\d+[x]\\^\\d+")) {
-                String[] parse = split[i].split("[x]\\^");
-                map.put("x^" + parse[1], Integer.parseInt(parse[0]));
-            } else if (split[i].matches("[+-]?[x]\\^\\d+")) {
-                String[] parse = split[i].split("[x]\\^");
-                map.put("x^" + parse[0], 1);
-            } else if (split[i].matches("[+-]?\\d+[x]")) {
-                String[] parse = split[i].split("[x]");
-                map.put("x", Integer.parseInt(parse[0]));
-            } else if (split[i].matches("[+]?[x]")) {
-                map.put("x", 1);
-            } else if (split[i].matches("[-]?[x]")) {
-                map.put("x", -1);
-            } else {
-                map.put("", Integer.parseInt(split[i]));
-            }
-        }
-        return map;
-    }
-
-
-    private static Map integerMapMaker(String str) {
-        Map<Integer, Integer> map = new TreeMap<>();
-        List<Integer> list = new ArrayList<>();
-        String trim = str.replaceAll("\\s+", "").trim();
-        String minus = trim.replaceAll("-", "  -").trim();
-        String plus = minus.replaceAll("\\+", "  +").trim();
-        String[] split = plus.split("\\s{2}");
-        for (int i = 0; i < split.length; i++) {
-            if (split[i].matches("[+-]?\\d+[x]\\^\\d+")) {
-                String[] parse = split[i].split("[x]\\^");
-                map.put(Integer.parseInt(parse[1]), Integer.parseInt(parse[0]));
-            } else if (split[i].matches("[+-]?[x]\\^\\d+")) {
-                String[] parse = split[i].split("[x]\\^");
-                map.put(Integer.parseInt(parse[1]), 1);
-            } else if (split[i].matches("[+-]?\\d+[x]")) {
-                String[] parse = split[i].split("[x]");
-                map.put(1, Integer.parseInt(parse[0]));
-            } else if (split[i].matches("[+]?[x]")) {
-                map.put(1, 1);
-            } else if (split[i].matches("[-]?[x]")) {
-                map.put(1, -1);
-            } else {
-                map.put(0, Integer.parseInt(split[i]));
-            }
-        }
-        return map;
-    }
-
-
-    public static String additionOfPolynomials(String str1, String str2) {
-        Map<Integer, Integer> map1 = integerMapMaker(str1);
-        Map<Integer, Integer> map2 = integerMapMaker(str2);
-        Map<Integer, Integer> map3 = new TreeMap<>();
-        map3.putAll(map1);
-        for (Integer key : map2.keySet()) {
-            if (map3.containsKey(key)) map3.put(key, map3.get(key) + map2.get(key));
-            else map3.put(key, map2.get(key));
-        }
-        return mapToString(map3);
-    }
-
-
-    public static String subtractionOfPolynomials(String str1, String str2) {
-        Map<Integer, Integer> map1 = integerMapMaker(str1);
-        Map<Integer, Integer> map2 = integerMapMaker(str2);
-        Map<Integer, Integer> map3 = new TreeMap<>();
-        map3.putAll(map1);
-        for (Integer key : map2.keySet()) {
-            if (map3.containsKey(key)) map3.put(key, map3.get(key) - map2.get(key));
-            else map3.put(key, -map2.get(key));
-        }
-        return mapToString(map3);
-    }
-
-
-    private static String mapToString(Map<Integer, Integer> map) {
-        String answer = new String();
-        map.values().removeIf(value -> value.equals(0));
-        ArrayList keyList = new ArrayList(map.keySet());
-        for (int i = keyList.size() - 1; i >= 0; i--) {
-            Object key = keyList.get(i);
-            if (key.equals(keyList.get(keyList.size() - 1))) {
-                if (key.equals(0)) answer += map.get(key);
-                else if (key.equals(1)) {
-                    if (map.get(key).equals(1)) answer += "x";
-                    else if (map.get(key).equals(-1)) answer += "-x";
-                    else answer += map.get(key) + "x";
-                }
-                else {
-                    if (map.get(key).equals(1)) answer += "x^" + key;
-                    else if (map.get(key).equals(-1)) answer += "-x^" + key;
-                    else answer += map.get(key) + "x^" + key;
-                }
-            } else {
-                if (key.equals(0)) {
-                    if (map.get(key) > 0) answer += "+" + map.get(key);
-                    else answer += map.get(key);
-                }
-                else if (key.equals(1)) {
-                    if (map.get(key).equals(1)) answer += "+x";
-                    else if (map.get(key).equals(-1)) answer += "-x";
-                    else if (map.get(key) > 1) answer += "+" + map.get(key) + "x";
-                    else answer += map.get(key) + "x";
-                }
-                else {
-                    if (map.get(key).equals(1)) answer += "+x^" + key;
-                    else if (map.get(key).equals(-1)) answer += "-x^" + key;
-                    else if (map.get(key) > 1) answer += "+" + map.get(key) + "x^" + key;
-                    else answer += map.get(key) + "x^" + key;
-                }
-            }
-        }
-        if (answer.equals("")) return "0"; else return answer;
-    }
-
-
-    public static String multiplicationOfPolynomials(String str1, String str2) {
-        Map<Integer, Integer> map1 = integerMapMaker(str1);
-        Map<Integer, Integer> map2 = integerMapMaker(str2);
-        Map<Integer, Integer> map3 = new TreeMap<>();
-        for (Integer key1 : map1.keySet()) {
-            for (Integer key2 : map2.keySet()) {
-                if (!map3.containsKey(key1 + key2)) map3.put(key1 + key2, map1.get(key1) * map2.get(key2));
-                else map3.put(key1 + key2, map3.get(key1 + key2) + map1.get(key1) * map2.get(key2));
-            }
-        }
-        return mapToString(map3);
-    }
-
-
-    public static String divisionOfPolynomials(String str1, String str2) {
-        if (str2.equals("0")) return "На ноль делить нельзя";
-        if (str1.equals("0")) return "0";
-        Map<Integer, Integer> map1 = integerMapMaker(str1);
-        Map<Integer, Integer> map2 = integerMapMaker(str2);
-        Map<Integer, Integer> map3 = new TreeMap<>();
-        Map<Integer, Integer> map4 = new TreeMap<>();
-        String str = str1;
-        int factor;
-        int divider;
-        int maxDivider1 = (int) map1.keySet().toArray()[map1.keySet().size() - 1];
-        int maxDivider2 = (int) map2.keySet().toArray()[map2.keySet().size() - 1];
-        int factor1 = map1.get(maxDivider1);
-        int factor2 = map2.get(maxDivider2);
-        for (int i = maxDivider1; i >= maxDivider2;) {
-            divider = maxDivider1 - maxDivider2;
-            factor = factor1 / factor2;
-            map3.put(divider, factor);
-            for (Integer key : map2.keySet()) {
-                map4.put(key + divider, map2.get(key) * factor);
-            }
-            str = subtractionOfPolynomials(str, mapToString(map4));
-            if (str.equals("")) return mapToString(map3);
-            map1 = integerMapMaker(str);
-            maxDivider1 = (int) map1.keySet().toArray()[map1.keySet().size() - 1];
-            i = maxDivider1;
-            factor1 = map1.get(maxDivider1);
-            map4.clear();
-        }
-        return mapToString(map3);
-    }
-
-
-    public static String remainderOfDivision(String str1, String str2) {
-        if (str2.equals("0")) return "На ноль делить нельзя";
-        if (str1.equals("0")) return "0";
-        Map<Integer, Integer> map1 = integerMapMaker(str1);
-        Map<Integer, Integer> map2 = integerMapMaker(str2);
-        Map<Integer, Integer> map3 = new TreeMap<>();
-        Map<Integer, Integer> map4 = new TreeMap<>();
-        String str = str1;
-        int factor;
-        int divider;
-        int maxDivider1 = (int) map1.keySet().toArray()[map1.keySet().size() - 1];
-        int maxDivider2 = (int) map2.keySet().toArray()[map2.keySet().size() - 1];
-        int factor1 = map1.get(maxDivider1);
-        int factor2 = map2.get(maxDivider2);
-        for (int i = maxDivider1; i >= maxDivider2;) {
-            divider = maxDivider1 - maxDivider2;
-            factor = factor1 / factor2;
-            map3.put(divider, factor);
-            for (Integer key : map2.keySet()) {
-                map4.put(key + divider, map2.get(key) * factor);
-            }
-            str = subtractionOfPolynomials(str, mapToString(map4));
-            if (str.equals("")) return "0";
-            map1 = integerMapMaker(str);
-            maxDivider1 = (int) map1.keySet().toArray()[map1.keySet().size() - 1];
-            i = maxDivider1;
-            factor1 = map1.get(maxDivider1);
-            map4.clear();
-        }
-        return str;
-    }
-
-
-    public static void main(String[] args) {
-        IntegerPolynomial str3 = new IntegerPolynomial("9x^4-11x^3+x^2-3");
-        IntegerPolynomial str4 = new IntegerPolynomial("2x-1");
-        System.out.println(str3.plus(str4).toString());
-        System.out.println(new IntegerPolynomial("0").equals(new IntegerPolynomial("0")));
-        System.out.println(str3.minus(str4));
-        System.out.println(str3.value(2));
-        System.out.println(str3.multiplication(str4));
-        System.out.println(str3.division(str4));
+        return this.minus(other.multiplication(this.division(other)));
     }
 }
