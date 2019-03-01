@@ -7,52 +7,22 @@ public final class IntegerPolynomial {
     private final List<Integer> factors;
 
     public IntegerPolynomial(List<Integer> input) {
-        List<Integer> list = new ArrayList<>(input);
-        factors = list;
+        factors = new ArrayList<>(input);
     }
 
     public IntegerPolynomial(String input) {
         if (input.matches("(\\+?-?\\s*\\d*[x]*\\^*\\d*)*")) {
-            List<Integer> list = toList(input);
-            factors = list;
-        } else throw new NumberFormatException("Некорректный ввод.");
-    }
+            factors = toList(input);
+        } else throw new NumberFormatException("Некорректный ввод.");  //  Бросает ошибку, если полином не соответствует
+    }  //  правильной записи, то есть вместо x используется любой другой символ
 
-    public IntegerPolynomial plus(IntegerPolynomial other) {
-        List<Integer> minList;
-        List<Integer> maxList;
-        if (factors.size() <= other.factors.size()) {
-            minList = factors;
-            maxList = other.factors;
-        } else {
-            minList = other.factors;
-            maxList = factors;
-        }
-        List<Integer> answer = new ArrayList<>();
-        int i = 0;
-        while (i < minList.size()) {
-            answer.add(minList.get(i) + maxList.get(i));
-            i++;
-        }
-        while (i < maxList.size()) {
-            answer.add(maxList.get(i));
-            i++;
-        }
-        if (answer.get(answer.size() - 1) == 0) {
-            while (answer.get(answer.size() - 1) == 0 && answer.size() != 1) {
-                answer.remove(answer.size() - 1);
-            }
-        }
-        return new IntegerPolynomial(answer);
-    }
-
-    private List<Integer> toList(String str) {
+    private List<Integer> toList(String str) {  // Вспомогательная функция для преобразования строки в лист
         List<Integer> list = new ArrayList<>();
         String trim = str.replaceAll("\\s+", "").trim();
         String minus = trim.replaceAll("-", "  -").trim();
         String plus = minus.replaceAll("\\+", "  +").trim();
         String[] split = plus.split("\\s{2}");
-        Integer max = -1;
+        int max = -1;
         for (int i = 0; i < split.length; i++) {
             if (split[i].matches("[+-]?\\d*[x]\\^\\d+")) {
                 String[] parse = split[i].split("[x]\\^");
@@ -112,6 +82,51 @@ public final class IntegerPolynomial {
     }
 
     @Override
+    public String toString() {  //  Вспомогательная функция для преобразования листа в строку
+        StringBuilder answer = new StringBuilder();
+        for (int i = factors.size() - 1; i >= 0; i--) {
+            if (i == factors.size() - 1) {
+                if (i > 1) {
+                    if (factors.get(i) == 1) answer.append("x^").append(i);
+                    else if (factors.get(i) == -1) answer.append("-x^").append(i);
+                    else if (factors.get(i) != 0) answer.append(factors.get(i)).append("x^").append(i);
+                    else continue;
+                }
+                if (i == 1) {
+                    if (factors.get(i) == 1) answer.append("x");
+                    else if (factors.get(i) == -1) answer.append("-x");
+                    else if (factors.get(i) != 0) answer.append(factors.get(i)).append("x");
+                    else continue;
+                }
+                if (i == 0) {
+                    if (factors.get(i) != 0) answer.append(factors.get(i));
+                }
+            } else {
+                if (i > 1) {
+                    if (factors.get(i) == 1) answer.append("+x^").append(i);
+                    else if (factors.get(i) == -1) answer.append("-x^").append(i);
+                    else if (factors.get(i) > 1) answer.append("+").append(factors.get(i)).append("x^").append(i);
+                    else if (factors.get(i) < -1) answer.append(factors.get(i)).append("x^").append(i);
+                    else continue;
+                }
+                if (i == 1) {
+                    if (factors.get(i) == 1) answer.append("+x");
+                    else if (factors.get(i) == -1) answer.append("-x");
+                    else if (factors.get(i) > 1) answer.append("+").append(factors.get(i)).append("x");
+                    else if (factors.get(i) < -1) answer.append(factors.get(i)).append("x");
+                    else continue;
+                }
+                if (i == 0) {
+                    if (factors.get(i) >= 1) answer.append("+").append(factors.get(i));
+                    if (factors.get(i) <= -1) answer.append(factors.get(i));
+                }
+            }
+        }
+        if (answer.toString().equals("")) return "0";
+        else return answer.toString();
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (this == other) return true;
         if (other instanceof IntegerPolynomial) {
@@ -119,60 +134,6 @@ public final class IntegerPolynomial {
             return factors.equals(newOther.factors);
         }
         return false;
-    }
-
-    @Override
-    public String toString() {
-        String answer = "";
-        for (int i = factors.size() - 1; i >= 0; i--) {
-            if (i == factors.size() - 1) {
-                if (i > 1) {
-                    if (factors.get(i) == 1) answer += "x^" + i;
-                    else if (factors.get(i) == -1) answer += "-x^" + i;
-                    else if (factors.get(i) != 0) answer += factors.get(i) + "x^" + i;
-                    else continue;
-                }
-                if (i == 1) {
-                    if (factors.get(i) == 1) answer += "x";
-                    else if (factors.get(i) == -1) answer += "-x";
-                    else if (factors.get(i) != 0) answer += factors.get(i) + "x";
-                    else continue;
-                }
-                if (i == 0) {
-                    if (factors.get(i) != 0) answer += factors.get(i);
-                }
-            } else {
-                if (i > 1) {
-                    if (factors.get(i) == 1) answer += "+x^" + i;
-                    else if (factors.get(i) == -1) answer += "-x^" + i;
-                    else if (factors.get(i) > 1) answer += "+" + factors.get(i) + "x^" + i;
-                    else if (factors.get(i) < -1) answer += factors.get(i) + "x^" + i;
-                    else continue;
-                }
-                if (i == 1) {
-                    if (factors.get(i) == 1) answer += "+x";
-                    else if (factors.get(i) == -1) answer += "-x";
-                    else if (factors.get(i) > 1) answer += "+" + factors.get(i) + "x";
-                    else if (factors.get(i) < -1) answer += factors.get(i) + "x";
-                    else continue;
-                }
-                if (i == 0) {
-                    if (factors.get(i) >= 1) answer += "+" + factors.get(i);
-                    if (factors.get(i) <= -1) answer += factors.get(i);
-                }
-            }
-        }
-        if (answer == "") return "0";
-        else return answer;
-    }
-
-    public IntegerPolynomial minus(IntegerPolynomial other) {
-        List<Integer> list1 = other.factors;
-        List<Integer> list2 = new ArrayList<>();
-        for (int i = 0; i < list1.size(); i++) {
-            list2.add(-list1.get(i));
-        }
-        return new IntegerPolynomial(factors).plus(new IntegerPolynomial(list2));
     }
 
     public int value(int x) {
@@ -184,19 +145,56 @@ public final class IntegerPolynomial {
         return answer;
     }
 
+    public IntegerPolynomial plus(IntegerPolynomial other) {
+        List<Integer> minList;
+        List<Integer> maxList;
+        if (factors.size() <= other.factors.size()) {  //  Определение максимальной степени у многочленов
+            minList = factors;
+            maxList = other.factors;
+        } else {
+            minList = other.factors;
+            maxList = factors;
+        }
+        List<Integer> answer = new ArrayList<>();
+        int i = 0;
+        while (i < minList.size()) {  // Добавление в лист суммы множителей до степени меньшего многочлена
+            answer.add(minList.get(i) + maxList.get(i));
+            i++;
+        }
+        while (i < maxList.size()) {  //  Добавление в лист оставшихся множителей большего многочлена
+            answer.add(maxList.get(i));
+            i++;
+        }
+        if (answer.get(answer.size() - 1) == 0) {  //  Если множители старших членов равны нулю, то они удаляются. Это
+            while (answer.get(answer.size() - 1) == 0 && answer.size() != 1) {  //  реализовано для того, чтобы при
+                answer.remove(answer.size() - 1);  //  вызове правильного ответа в тесте, не было конфликтов между
+            }  //  элементами класса
+        }
+        return new IntegerPolynomial(answer);
+    }
+
+    public IntegerPolynomial minus(IntegerPolynomial other) {
+        List<Integer> list1 = other.factors;
+        List<Integer> list2 = new ArrayList<>();
+        for (int i = 0; i < list1.size(); i++) {  //  Цикл для изменения всех множителей на отрицательные
+            list2.add(-list1.get(i));
+        }
+        return new IntegerPolynomial(factors).plus(new IntegerPolynomial(list2));
+    }
+
     public IntegerPolynomial multiplication(IntegerPolynomial other) {
         int max = factors.size() - 1 + other.factors.size() - 1;
         List<Integer> list = new ArrayList<>();
-        for (int i = 0; i <= max; i++) {
-            list.add(0);
+        for (int i = 0; i <= max; i++) {  //  Заполнение листа нулями до максимальной степени многочлена, реализовано
+            list.add(0);  // для удобства работы с листом
         }
-        for (int i = 0; i < factors.size(); i++) {
-            for (int j = 0; j < other.factors.size(); j++) {
-                list.set(i + j, list.get(i + j) + factors.get(i) * other.factors.get(j));
+        for (int i = 0; i < factors.size(); i++) {  //  Сам алгоритм умножения - добавление в конкретный индекс, то есть
+            for (int j = 0; j < other.factors.size(); j++) {  //  степень многочлена, множителя или сложение предыдущего
+                list.set(i + j, list.get(i + j) + factors.get(i) * other.factors.get(j));  //  множителя с новым
             }
         }
-        IntegerPolynomial ans = new IntegerPolynomial(list);
-        IntegerPolynomial zero = new IntegerPolynomial("0");
+        IntegerPolynomial ans = new IntegerPolynomial(list);  //  Проверка ответа на ноль, реализовано для устранения
+        IntegerPolynomial zero = new IntegerPolynomial("0");  //  ошибки проверки в тестах
         if (ans.toString().equals(zero.toString())) return zero;
         else return ans;
     }
@@ -206,10 +204,10 @@ public final class IntegerPolynomial {
         if (factors.size() < other.factors.size()) return new IntegerPolynomial("0");
         int max = factors.size() - 1 - (other.factors.size() - 1);
         List<Integer> list = new ArrayList<>();
-        for (int i = 0; i <= max; i++) {
+        for (int i = 0; i <= max; i++) {  //  Тот же цикл для заполнения листа нулями
             list.add(0);
         }
-        int factor;
+        int factor;  //  Создание вспомогательных переменных
         int divider;
         int maxDivider1 = factors.size() - 1;
         int maxDivider2 = other.factors.size() - 1;
