@@ -81,6 +81,15 @@ public final class IntegerPolynomial {
         return list;
     }
 
+    private List<Integer> zeroCheck(List<Integer> list) {  //  Вспомогательная функиция для удаления нулевых старших членов
+        if (list.get(list.size() - 1) == 0) {  //  Если множители старших членов равны нулю, то они удаляются. Это
+            while (list.get(list.size() - 1) == 0 && list.size() != 1) {  //  реализовано для того, чтобы при
+                list.remove(list.size() - 1);  //  вызове правильного ответа в тесте, не было конфликтов между
+            }  //  элементами класса
+        }
+        return list;
+    }
+
     @Override
     public String toString() {  //  Вспомогательная функция для преобразования листа в строку
         StringBuilder answer = new StringBuilder();
@@ -156,21 +165,11 @@ public final class IntegerPolynomial {
             maxList = factors;
         }
         List<Integer> answer = new ArrayList<>();
-        int i = 0;
-        while (i < minList.size()) {  // Добавление в лист суммы множителей до степени меньшего многочлена
-            answer.add(minList.get(i) + maxList.get(i));
-            i++;
+        for (int i = 0; i < maxList.size(); i++) {  //  Добавление в лист множителей
+            if (i < minList.size()) answer.add(minList.get(i) + maxList.get(i));
+            else answer.add(maxList.get(i));
         }
-        while (i < maxList.size()) {  //  Добавление в лист оставшихся множителей большего многочлена
-            answer.add(maxList.get(i));
-            i++;
-        }
-        if (answer.get(answer.size() - 1) == 0) {  //  Если множители старших членов равны нулю, то они удаляются. Это
-            while (answer.get(answer.size() - 1) == 0 && answer.size() != 1) {  //  реализовано для того, чтобы при
-                answer.remove(answer.size() - 1);  //  вызове правильного ответа в тесте, не было конфликтов между
-            }  //  элементами класса
-        }
-        return new IntegerPolynomial(answer);
+        return new IntegerPolynomial(zeroCheck(answer));
     }
 
     public IntegerPolynomial minus(IntegerPolynomial other) {
@@ -179,10 +178,10 @@ public final class IntegerPolynomial {
         for (int i = 0; i < list1.size(); i++) {  //  Цикл для изменения всех множителей на отрицательные
             list2.add(-list1.get(i));
         }
-        return new IntegerPolynomial(factors).plus(new IntegerPolynomial(list2));
+        return this.plus(new IntegerPolynomial(list2));
     }
 
-    public IntegerPolynomial multiplication(IntegerPolynomial other) {
+    public IntegerPolynomial multiply(IntegerPolynomial other) {
         int max = factors.size() - 1 + other.factors.size() - 1;
         List<Integer> list = new ArrayList<>();
         for (int i = 0; i <= max; i++) {  //  Заполнение листа нулями до максимальной степени многочлена, реализовано
@@ -193,13 +192,10 @@ public final class IntegerPolynomial {
                 list.set(i + j, list.get(i + j) + factors.get(i) * other.factors.get(j));  //  множителя с новым
             }
         }
-        IntegerPolynomial ans = new IntegerPolynomial(list);  //  Проверка ответа на ноль, реализовано для устранения
-        IntegerPolynomial zero = new IntegerPolynomial("0");  //  ошибки проверки в тестах
-        if (ans.toString().equals(zero.toString())) return zero;
-        else return ans;
+        return new IntegerPolynomial(zeroCheck(list));
     }
 
-    public IntegerPolynomial division(IntegerPolynomial other) {
+    public IntegerPolynomial divide(IntegerPolynomial other) {
         if (other.equals(new IntegerPolynomial("0"))) throw new NumberFormatException("На ноль делить нельзя");
         if (factors.size() < other.factors.size()) return new IntegerPolynomial("0");
         int max = factors.size() - 1 - (other.factors.size() - 1);
@@ -223,18 +219,17 @@ public final class IntegerPolynomial {
                 if (j == 0) var.add(factor);
                 else var.add(0);
             }
-            IntegerPolynomial remainder = obj1.minus(new IntegerPolynomial(var).multiplication(other));  //Остаток от вычитания
+            IntegerPolynomial remainder = obj1.minus(new IntegerPolynomial(var).multiply(other));  //Остаток от вычитания
             if (remainder.factors.size() == obj1.factors.size())  //  Удаление максимального одночлена, если его степень
                 remainder.factors.remove(remainder.factors.size() - 1);  //  совпадает со степенью уменьшаемого
             obj1 = remainder;
             maxDivider1 = obj1.factors.size() - 1;  //  Переопределение степени уменьшаемого
             factor1 = obj1.factors.get(obj1.factors.size() - 1);  //  Переопределение множителя уменьшаемого
-            if (remainder.toString().equals("0")) break;  //  Если остаток равен 0, то цикл заканчивается
         }
         return new IntegerPolynomial(list);
     }
 
     public IntegerPolynomial remainder(IntegerPolynomial other) {
-        return this.minus(other.multiplication(this.division(other)));
+        return this.minus(other.multiply(this.divide(other)));
     }
 }

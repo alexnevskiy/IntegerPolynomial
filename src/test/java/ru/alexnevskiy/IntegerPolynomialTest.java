@@ -72,36 +72,36 @@ class IntegerPolynomialTest {
         minusEquals("-9x^10+5x^6+4x^2-2", "x^10    +    4x^2   -   2", "10x^10   -   5x^6");
     }
 
-    static void multiplicationEquals(String answer, String polynom1, String polynom2) {
+    static void multiplyEquals(String answer, String polynom1, String polynom2) {
         IntegerPolynomial obj1 = new IntegerPolynomial(answer);
         IntegerPolynomial obj2 = new IntegerPolynomial(polynom1);
         IntegerPolynomial obj3 = new IntegerPolynomial(polynom2);
-        assertEquals(obj1, obj2.multiplication(obj3));
+        assertEquals(obj1, obj2.multiply(obj3));
     }
 
     @Test
     void multiplication() {
-        multiplicationEquals("x^2", "x", "x");
-        multiplicationEquals("-20", "2", "-10");
-        multiplicationEquals("200x^7-220x^5-60x^4+80x^3+36x^2-10x-6", "10x^4-6x^2+1", "20x^3-10x-6");
-        multiplicationEquals("0", "x^6-150x^4-13x^2+150x-60", "0");
-        multiplicationEquals("2x^4-3x^3-24x^2+51x-10", "x^2   +    x   -   10", "2x^2   -   5x   +   1");
+        multiplyEquals("x^2", "x", "x");
+        multiplyEquals("-20", "2", "-10");
+        multiplyEquals("200x^7-220x^5-60x^4+80x^3+36x^2-10x-6", "10x^4-6x^2+1", "20x^3-10x-6");
+        multiplyEquals("0", "x^6-150x^4-13x^2+150x-60", "0");
+        multiplyEquals("2x^4-3x^3-24x^2+51x-10", "x^2   +    x   -   10", "2x^2   -   5x   +   1");
     }
 
-    static void divisionEquals(String answer, String polynom1, String polynom2) {
+    static void divideEquals(String answer, String polynom1, String polynom2) {
         IntegerPolynomial obj1 = new IntegerPolynomial(answer);
         IntegerPolynomial obj2 = new IntegerPolynomial(polynom1);
         IntegerPolynomial obj3 = new IntegerPolynomial(polynom2);
-        assertEquals(obj1, obj2.division(obj3));
+        assertEquals(obj1, obj2.divide(obj3));
     }
 
     @Test
     void division() {
-        divisionEquals("1", "x", "x");
-        divisionEquals("0", "x+1", "x^4-6x^2-10");
-        divisionEquals("x-2", "x^2-4x+4", "x-2");
-        divisionEquals("4x^3-3x^2-x", "9x^4-11x^3+x^2-3", "2x-1");
-        divisionEquals("2x^2+x+4", "2x^4 -   x^3  +  5x^2 - 8x  + 1", "x^2  - x  +   1");
+        divideEquals("1", "x", "x");
+        divideEquals("0", "x+1", "x^4-6x^2-10");
+        divideEquals("x-2", "x^2-4x+4", "x-2");
+        divideEquals("4x^3-3x^2-x", "9x^4-11x^3+x^2-3", "2x-1");
+        divideEquals("2x^2+x+4", "2x^4 -   x^3  +  5x^2 - 8x  + 1", "x^2  - x  +   1");
     }
 
     static void remainderEquals(String answer, String polynom1, String polynom2) {
