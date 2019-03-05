@@ -12,7 +12,7 @@ public final class IntegerPolynomial {
 
     public IntegerPolynomial(String input) {
         if (input.matches("(\\+?-?\\s*\\d*[x]*\\^*\\d*)*")) {
-            factors = toList(input);
+            factors = zeroCheck(toList(input));
         } else throw new NumberFormatException("Некорректный ввод.");  //  Бросает ошибку, если полином не соответствует
     }  //  правильной записи, то есть вместо x используется любой другой символ
 
@@ -164,7 +164,7 @@ public final class IntegerPolynomial {
             minList = other.factors;
             maxList = factors;
         }
-        List<Integer> answer = new ArrayList<>();
+        List<Integer> answer = new ArrayList<>(maxList.size() - 1);
         for (int i = 0; i < maxList.size(); i++) {  //  Добавление в лист множителей
             if (i < minList.size()) answer.add(minList.get(i) + maxList.get(i));
             else answer.add(maxList.get(i));
@@ -174,7 +174,7 @@ public final class IntegerPolynomial {
 
     public IntegerPolynomial minus(IntegerPolynomial other) {
         List<Integer> list1 = other.factors;
-        List<Integer> list2 = new ArrayList<>();
+        List<Integer> list2 = new ArrayList<>(list1.size() - 1);
         for (int i = 0; i < list1.size(); i++) {  //  Цикл для изменения всех множителей на отрицательные
             list2.add(-list1.get(i));
         }
@@ -183,7 +183,7 @@ public final class IntegerPolynomial {
 
     public IntegerPolynomial multiply(IntegerPolynomial other) {
         int max = factors.size() - 1 + other.factors.size() - 1;
-        List<Integer> list = new ArrayList<>();
+        List<Integer> list = new ArrayList<>(max);
         for (int i = 0; i <= max; i++) {  //  Заполнение листа нулями до максимальной степени многочлена, реализовано
             list.add(0);  // для удобства работы с листом
         }
@@ -199,7 +199,7 @@ public final class IntegerPolynomial {
         if (other.equals(new IntegerPolynomial("0"))) throw new NumberFormatException("На ноль делить нельзя");
         if (factors.size() < other.factors.size()) return new IntegerPolynomial("0");
         int max = factors.size() - 1 - (other.factors.size() - 1);
-        List<Integer> list = new ArrayList<>();
+        List<Integer> list = new ArrayList<>(max);
         for (int i = 0; i <= max; i++) {  //  Тот же цикл для заполнения листа нулями
             list.add(0);
         }
