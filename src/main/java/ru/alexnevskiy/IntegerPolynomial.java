@@ -17,66 +17,38 @@ public final class IntegerPolynomial {
     }  //  правильной записи, то есть вместо x используется любой другой символ
 
     private List<Integer> toList(String str) {  // Вспомогательная функция для преобразования строки в лист
-        List<Integer> list = new ArrayList<>();
+        Map<Integer, Integer> map = new TreeMap<>();
         String trim = str.replaceAll("\\s+", "").trim();
         String minus = trim.replaceAll("-", "  -").trim();
         String plus = minus.replaceAll("\\+", "  +").trim();
         String[] split = plus.split("\\s{2}");
-        int max = -1;
-        for (int i = 0; i < split.length; i++) {
-            if (split[i].matches("[+-]?\\d*[x]\\^\\d+")) {
+        for (int i = 0; i < split.length; i++) {  //  Добавление в map степени (ключ) и множителя (значение)
+            if (split[i].matches("[+-]?\\d+[x]\\^\\d+")) {
                 String[] parse = split[i].split("[x]\\^");
-                if (Integer.parseInt(parse[1]) > max) max = Integer.parseInt(parse[1]);
-            } else if (split[i].matches("[+-]?\\d*[x]")) {
-                if (1 > max) max = 1;
+                map.put(Integer.parseInt(parse[1]), Integer.parseInt(parse[0]));
+            } else if (split[i].matches("[+]?[x]\\^\\d+")) {
+                String[] parse = split[i].split("[x]\\^");
+                map.put(Integer.parseInt(parse[1]), 1);
+            } else if (split[i].matches("[-]?[x]\\^\\d+")) {
+                String[] parse = split[i].split("[x]\\^");
+                map.put(Integer.parseInt(parse[1]), -1);
+            } else if (split[i].matches("[+-]?\\d+[x]")) {
+                String[] parse = split[i].split("[x]");
+                map.put(1, Integer.parseInt(parse[0]));
+            } else if (split[i].matches("[+]?[x]")) {
+                map.put(1, 1);
+            } else if (split[i].matches("[-]?[x]")) {
+                map.put(1, -1);
             } else {
-                if (0 > max) max = 0;
+                map.put(0, Integer.parseInt(split[i]));
             }
         }
-        for (int i = 0; i <= max; i++) {
-            for (int j = 0; j < split.length; j++) {
-                if (split[j].matches("[+-]?\\d+[x]\\^\\d+")) {
-                    String[] parse = split[j].split("[x]\\^");
-                    if (Integer.parseInt(parse[1]) == i) {
-                        list.add(Integer.parseInt(parse[0]));
-                        break;
-                    }
-                } else if (split[j].matches("[+]?[x]\\^\\d+")) {
-                    String[] parse = split[j].split("[x]\\^");
-                    if (Integer.parseInt(parse[1]) == i) {
-                        list.add(1);
-                        break;
-                    }
-                } else if (split[j].matches("[-]?[x]\\^\\d+")) {
-                    String[] parse = split[j].split("[x]\\^");
-                    if (Integer.parseInt(parse[1]) == i) {
-                        list.add(-1);
-                        break;
-                    }
-                } else if (split[j].matches("[+-]?\\d+[x]")) {
-                    String[] parse = split[j].split("[x]");
-                    if (1 == i) {
-                        list.add(Integer.parseInt(parse[0]));
-                        break;
-                    }
-                } else if (split[j].matches("[+]?[x]")) {
-                    if (1 == i) {
-                        list.add(1);
-                        break;
-                    }
-                } else if (split[j].matches("[-]?[x]")) {
-                    if (1 == i) {
-                        list.add(-1);
-                        break;
-                    }
-                } else {
-                    if (0 == i) {
-                        list.add(Integer.parseInt(split[j]));
-                        break;
-                    }
-                }
-                if (j == split.length - 1) list.add(0);
-            }
+        List<Integer> list = new ArrayList<>((int) map.keySet().toArray()[map.keySet().size() - 1]);
+        for (int i = 0; i <= (int) map.keySet().toArray()[map.keySet().size() - 1]; i++) {  //  Заполнение листа нулями
+            list.add(0);
+        }
+        for (Integer key : map.keySet()) {  //  Изменение значений листа на множители степеней
+            list.set(key, map.get(key));
         }
         return list;
     }
