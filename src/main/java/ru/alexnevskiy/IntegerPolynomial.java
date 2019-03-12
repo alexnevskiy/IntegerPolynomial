@@ -62,21 +62,34 @@ public final class IntegerPolynomial {
         return list;
     }
 
+    private String factorBegin(Integer i) {
+        StringBuilder str = new StringBuilder();
+        if (factors.get(i) == 1) str.append("x");
+        else if (factors.get(i) == -1) str.append("-x");
+        else if (factors.get(i) != 0) str.append(factors.get(i)).append("x");
+        return str.toString();
+    }
+
+    private String factor(Integer i) {
+        StringBuilder str = new StringBuilder();
+        if (factors.get(i) == 1) str.append("+x");
+        else if (factors.get(i) == -1) str.append("-x");
+        else if (factors.get(i) > 1) str.append("+").append(factors.get(i)).append("x");
+        else if (factors.get(i) < -1) str.append(factors.get(i)).append("x");
+        return str.toString();
+    }
+
     @Override
     public String toString() {  //  Вспомогательная функция для преобразования листа в строку
         StringBuilder answer = new StringBuilder();
         for (int i = factors.size() - 1; i >= 0; i--) {
             if (i == factors.size() - 1) {
                 if (i > 1) {
-                    if (factors.get(i) == 1) answer.append("x^").append(i);
-                    else if (factors.get(i) == -1) answer.append("-x^").append(i);
-                    else if (factors.get(i) != 0) answer.append(factors.get(i)).append("x^").append(i);
+                    if (!factorBegin(i).equals("")) answer.append(factorBegin(i)).append("^").append(i);
                     else continue;
                 }
                 if (i == 1) {
-                    if (factors.get(i) == 1) answer.append("x");
-                    else if (factors.get(i) == -1) answer.append("-x");
-                    else if (factors.get(i) != 0) answer.append(factors.get(i)).append("x");
+                    if (!factorBegin(i).equals("")) answer.append(factorBegin(i));
                     else continue;
                 }
                 if (i == 0) {
@@ -84,17 +97,11 @@ public final class IntegerPolynomial {
                 }
             } else {
                 if (i > 1) {
-                    if (factors.get(i) == 1) answer.append("+x^").append(i);
-                    else if (factors.get(i) == -1) answer.append("-x^").append(i);
-                    else if (factors.get(i) > 1) answer.append("+").append(factors.get(i)).append("x^").append(i);
-                    else if (factors.get(i) < -1) answer.append(factors.get(i)).append("x^").append(i);
+                    if (!factor(i).equals("")) answer.append(factor(i)).append("^").append(i);
                     else continue;
                 }
                 if (i == 1) {
-                    if (factors.get(i) == 1) answer.append("+x");
-                    else if (factors.get(i) == -1) answer.append("-x");
-                    else if (factors.get(i) > 1) answer.append("+").append(factors.get(i)).append("x");
-                    else if (factors.get(i) < -1) answer.append(factors.get(i)).append("x");
+                    if (!factor(i).equals("")) answer.append(factor(i));
                     else continue;
                 }
                 if (i == 0) {
